@@ -243,6 +243,8 @@ const Arpanet = ({ active }) => {
                   <animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite" />
                 </circle>
               )}
+              {/* Massive invisible touch target for mobile devices */}
+              <circle cx={node.x} cy={node.y} r="8" fill="transparent" />
               <circle
                 cx={node.x} cy={node.y}
                 r={isHovered ? 4 : isOnPath ? 3 : 2}

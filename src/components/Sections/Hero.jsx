@@ -11,7 +11,6 @@ gsap.registerPlugin(TextPlugin, ScrollTrigger);
 const GlitchBackground = () => {
   const canvasRef = useRef(null);
   const animRef = useRef(null);
-  const scrollVelocity = useRef(0);
   const isVisible = useRef(true);
 
   useEffect(() => {
@@ -29,18 +28,6 @@ const GlitchBackground = () => {
     let W = (canvas.width = window.innerWidth);
     let H = (canvas.height = window.innerHeight);
 
-    // Track global scroll velocity for glitch intensity
-    const st = ScrollTrigger.create({
-      trigger: document.documentElement,
-      start: 'top top',
-      end: 'bottom bottom',
-      onUpdate: (self) => {
-        // scale scroll speed
-        const speed = Math.abs(self.getVelocity() / 150);
-        scrollVelocity.current = Math.min(speed, 6); // cap max glitch intensity
-      }
-    });
-
     const colors = ['#00ffff', '#ff003c', '#00ff41', '#ffffff', '#111111'];
 
     const animate = () => {
@@ -48,9 +35,8 @@ const GlitchBackground = () => {
         animRef.current = requestAnimationFrame(animate);
         return;
       }
-      // Natural decay of velocity back to rest state (constant slight glitch)
-      scrollVelocity.current += (0 - scrollVelocity.current) * 0.1;
-      const intensity = 0.6 + scrollVelocity.current; // min intensity + scroll boost
+      
+      const intensity = 0.6; // Constant mild glitch
 
       // Trail/Fade dark background
       ctx.fillStyle = `rgba(10, 10, 10, 0.25)`;
@@ -89,7 +75,6 @@ const GlitchBackground = () => {
 
     return () => {
       cancelAnimationFrame(animRef.current);
-      st.kill();
     };
   }, []);
 

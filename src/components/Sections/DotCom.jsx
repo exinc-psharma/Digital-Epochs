@@ -315,8 +315,11 @@ const DotCom = ({ active }) => {
         }
 
         @media (max-width: 768px) {
-          .windows-container { grid-template-columns: repeat(2, 1fr); gap: 1rem; padding: 3rem 1rem; }
+          .windows-container { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; padding: 4.5rem 1rem 1rem 1rem; align-items: stretch; }
           .retro-browser { max-width: 95%; }
+          .dotcom-title { font-size: 1.25rem; top: 1.5rem; left: 1rem; }
+          .window-body { flex: 1; display: flex; flex-direction: column; padding: 0.6rem; }
+          .window-content { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         }
       `}</style>
     </section>

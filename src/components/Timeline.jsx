@@ -145,26 +145,10 @@ const Timeline = ({ activeSection, onNavigate }) => {
         }
 
         @media (max-width: 768px) {
-          .timeline-container {
-            right: auto;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            transform: none;
-            flex-direction: row;
-          }
-          .timeline-line {
-            width: 100%;
-            height: 2px;
-          }
-          .timeline-markers {
-            flex-direction: row;
-            width: 100%;
-          }
-           .timeline-label {
-            display: none;
-          }
+          .timeline-container { right: 0.5rem; height: 180px; }
+          .timeline-dot { width: 8px; height: 8px; }
+          .timeline-dot.active { width: 12px; height: 12px; }
+          .timeline-label { display: none; }
         }
       `}</style>
     </nav>
