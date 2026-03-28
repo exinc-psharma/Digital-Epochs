@@ -7,7 +7,7 @@ import { Cpu, Globe, Zap, Shield, Hexagon, Sparkles } from 'lucide-react';
 const NeonField = () => {
   const canvasRef = useRef(null);
   const animRef = useRef(null);
-  const cleanupRef = useRef(null);
+  const isVisible = useRef(true);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -30,6 +30,10 @@ const NeonField = () => {
     }));
 
     const animate = () => {
+      if (!isVisible.current) {
+        animRef.current = requestAnimationFrame(animate);
+        return;
+      }
       ctx.clearRect(0, 0, W, H);
       
       const connectDist = isMobile ? 80 : isTablet ? 95 : 110;
@@ -83,20 +87,15 @@ const NeonField = () => {
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        if (!cleanupRef.current) cleanupRef.current = draw();
-      } else {
-        if (cleanupRef.current) {
-          cleanupRef.current();
-          cleanupRef.current = null;
-        }
-      }
+      isVisible.current = entry.isIntersecting;
     });
     if (canvasRef.current) observer.observe(canvasRef.current);
 
+    const cleanup = draw();
+
     return () => {
       observer.disconnect();
-      if (cleanupRef.current) cleanupRef.current();
+      cleanup();
     };
   }, [draw]);
 

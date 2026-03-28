@@ -135,6 +135,7 @@ const App = () => {
         end: '+=5200',
         scrub: 1,
         pin: true,
+        fastScrollEnd: true,
         onUpdate: (self) => {
           const rawIndex = self.progress * (numSections - 1);
           const activeIndex = Math.round(rawIndex);

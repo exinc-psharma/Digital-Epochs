@@ -5,7 +5,7 @@ import gsap from 'gsap';
 const FadingParticles = () => {
   const canvasRef = useRef(null);
   const animRef = useRef(null);
-  const cleanupRef = useRef(null);
+  const isVisible = useRef(true);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -28,6 +28,10 @@ const FadingParticles = () => {
     }));
 
     const animate = () => {
+      if (!isVisible.current) {
+        animRef.current = requestAnimationFrame(animate);
+        return;
+      }
       ctx.clearRect(0, 0, W, H);
       particles.forEach((p) => {
         // Gradually decelerate — calming wind-down
@@ -62,20 +66,15 @@ const FadingParticles = () => {
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        if (!cleanupRef.current) cleanupRef.current = draw();
-      } else {
-        if (cleanupRef.current) {
-          cleanupRef.current();
-          cleanupRef.current = null;
-        }
-      }
+      isVisible.current = entry.isIntersecting;
     });
     if (canvasRef.current) observer.observe(canvasRef.current);
 
+    const cleanup = draw();
+
     return () => {
       observer.disconnect();
-      if (cleanupRef.current) cleanupRef.current();
+      cleanup();
     };
   }, [draw]);
 
