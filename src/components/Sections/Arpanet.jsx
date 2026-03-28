@@ -235,7 +235,7 @@ const Arpanet = ({ active }) => {
               onMouseEnter={() => setHoveredNode(node.id)}
               onMouseLeave={() => setHoveredNode(null)}
               onPointerDown={(e) => handlePointerDown(e, node.id)}
-              style={{ cursor: draggingNode === node.id ? 'grabbing' : 'grab' }}
+              style={{ cursor: draggingNode === node.id ? 'grabbing' : 'grab', touchAction: 'none' }}
             >
               {isHovered && (
                 <circle cx={node.x} cy={node.y} r="3" fill="none" stroke="#00ff41" strokeWidth="0.1" opacity="0.5">
