@@ -3,22 +3,38 @@ import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import gsap from 'gsap';
 import { Cpu, Globe, Zap, Shield, Hexagon, Sparkles } from 'lucide-react';
 
+
+/* -------------------------------------------------------------------------- */
+/*                          3D FUTURE GEOMETRY ENGINE                         */
+/* -------------------------------------------------------------------------- */
+
 /* ── Dense Neon Particle Field (distinct from Hero's sparse stars) ── */
 const NeonField = () => {
   const canvasRef = useRef(null);
   const animRef = useRef(null);
   const isVisible = useRef(true);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible.current = entry.isIntersecting;
+    });
+    if (canvasRef.current) observer.observe(canvasRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let W = (canvas.width = window.innerWidth);
-    let H = (canvas.height = window.innerHeight);
-
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const W = canvas.offsetWidth;
+    const H = canvas.offsetHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.scale(dpr, dpr);
     const isMobile = W < 768;
     const isTablet = W >= 768 && W <= 1024;
-    const count = isMobile ? 30 : isTablet ? 45 : 60;
+    const count = isMobile ? 35 : isTablet ? 50 : 80;
 
     const particles = Array.from({ length: count }, () => ({
       x: Math.random() * W,
@@ -35,19 +51,35 @@ const NeonField = () => {
         return;
       }
       ctx.clearRect(0, 0, W, H);
-      
-      const connectDist = isMobile ? 80 : isTablet ? 95 : 110;
-      const connectDistSq = connectDist * connectDist;
+      particles.forEach((p) => {
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > W) p.dx *= -1;
+        if (p.y < 0 || p.y > H) p.dy *= -1;
 
-      // ── Draw Connection Web ──
+        // Glow effect
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3);
+        grad.addColorStop(0, `hsla(${p.hue}, 100%, 70%, 0.6)`);
+        grad.addColorStop(1, `hsla(${p.hue}, 100%, 70%, 0)`);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${p.hue}, 100%, 75%, 0.7)`;
+        ctx.fill();
+      });
+
+      // Dense connection web
+      const connectDist = isMobile ? 80 : isTablet ? 95 : 110;
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
-          const distSq = dx * dx + dy * dy;
-          
-          if (distSq < connectDistSq) {
-            const dist = Math.sqrt(distSq);
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < connectDist) {
             const alpha = 0.15 * (1 - dist / connectDist);
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
@@ -58,45 +90,15 @@ const NeonField = () => {
           }
         }
       }
-
-      // ── Draw Particles ──
-      particles.forEach((p) => {
-        p.x += p.dx;
-        p.y += p.dy;
-        if (p.x < 0 || p.x > W) p.dx *= -1;
-        if (p.y < 0 || p.y > H) p.dy *= -1;
-
-        // Optimized Glow (Concentric circles instead of radial gradient)
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, 100%, 70%, 0.15)`;
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, 100%, 75%, 0.7)`;
-        ctx.fill();
-      });
       animRef.current = requestAnimationFrame(animate);
     };
     animate();
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    };
+    return () => cancelAnimationFrame(animRef.current);
   }, []);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      isVisible.current = entry.isIntersecting;
-    });
-    if (canvasRef.current) observer.observe(canvasRef.current);
-
     const cleanup = draw();
-
-    return () => {
-      observer.disconnect();
-      cleanup();
-    };
+    return () => cleanup?.();
   }, [draw]);
 
   return (

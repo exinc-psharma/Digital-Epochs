@@ -14,6 +14,11 @@ import Epilogue from './components/Sections/Epilogue';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
+
+/* -------------------------------------------------------------------------- */
+/*                               ERA CONSTANTS                                */
+/* -------------------------------------------------------------------------- */
+
 /* ── Normalize scroll removed - caused aggressive jumping loops ── */
 
 /* ── Era definitions for progress bar ── */
@@ -25,6 +30,11 @@ const ERAS = [
   { id: 'future', label: 'Future', color: '#ff00c1', pos: 80 },
   { id: 'epilogue', label: 'End', color: '#c084fc', pos: 100 },
 ];
+
+
+/* -------------------------------------------------------------------------- */
+/*                           CORE UI SUB-COMPONENTS                           */
+/* -------------------------------------------------------------------------- */
 
 /* ── Interactive Scroll Progress Bar ── */
 const ScrollProgressBar = ({ activeSection, onNavigate }) => {
@@ -83,6 +93,12 @@ const TransitionOverlay = ({ visible }) => (
 );
 
 /* ── App ── */
+
+
+/* -------------------------------------------------------------------------- */
+/*                                MAIN ENGINE                                 */
+/* -------------------------------------------------------------------------- */
+
 const App = () => {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('hero');
@@ -135,7 +151,6 @@ const App = () => {
         end: '+=5200',
         scrub: 1,
         pin: true,
-        fastScrollEnd: true,
         onUpdate: (self) => {
           const rawIndex = self.progress * (numSections - 1);
           const activeIndex = Math.round(rawIndex);

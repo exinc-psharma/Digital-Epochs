@@ -1,18 +1,35 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import gsap from 'gsap';
 
+
+/* -------------------------------------------------------------------------- */
+/*                               ERA CONCLUSION                               */
+/* -------------------------------------------------------------------------- */
+
 /* ── Fading Particle Field (wind-down effect) ── */
 const FadingParticles = () => {
   const canvasRef = useRef(null);
   const animRef = useRef(null);
   const isVisible = useRef(true);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible.current = entry.isIntersecting;
+    });
+    if (canvasRef.current) observer.observe(canvasRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let W = (canvas.width = window.innerWidth);
-    let H = (canvas.height = window.innerHeight);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const W = canvas.offsetWidth;
+    const H = canvas.offsetHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.scale(dpr, dpr);
 
     const isMobile = W < 768;
     const count = isMobile ? 12 : 20;
@@ -44,10 +61,12 @@ const FadingParticles = () => {
         if (p.x < 0 || p.x > W) p.dx *= -1;
         if (p.y < 0 || p.y > H) p.dy *= -1;
 
-        // Optimized Glow
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 4);
+        grad.addColorStop(0, `hsla(${p.hue}, 80%, 65%, ${p.alpha})`);
+        grad.addColorStop(1, `hsla(${p.hue}, 80%, 65%, 0)`);
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r * 4, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, 80%, 65%, ${p.alpha * 0.3})`;
+        ctx.fillStyle = grad;
         ctx.fill();
 
         ctx.beginPath();
@@ -59,23 +78,12 @@ const FadingParticles = () => {
       animRef.current = requestAnimationFrame(animate);
     };
     animate();
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    };
+    return () => cancelAnimationFrame(animRef.current);
   }, []);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      isVisible.current = entry.isIntersecting;
-    });
-    if (canvasRef.current) observer.observe(canvasRef.current);
-
     const cleanup = draw();
-
-    return () => {
-      observer.disconnect();
-      cleanup();
-    };
+    return () => cleanup?.();
   }, [draw]);
 
   return (

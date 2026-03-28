@@ -1,5 +1,11 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import gsap from 'gsap';
+import { Terminal, Search, Activity, Share2, MousePointer2 } from 'lucide-react';
+
+
+/* -------------------------------------------------------------------------- */
+/*                          NETWORK SIMULATION ENGINE                         */
+/* -------------------------------------------------------------------------- */
 
 const ARPANET_NODES = 12;
 

@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Globe, X, ExternalLink, ArrowRight, Code, History } from 'lucide-react';
+
+
+/* -------------------------------------------------------------------------- */
+/*                           OS & BROWSER SIMULATOR                           */
+/* -------------------------------------------------------------------------- */
 import { motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import gsap from 'gsap';
 

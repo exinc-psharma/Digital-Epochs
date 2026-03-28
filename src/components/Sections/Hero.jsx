@@ -6,12 +6,25 @@ import { ChevronDown } from 'lucide-react';
 
 gsap.registerPlugin(TextPlugin, ScrollTrigger);
 
+
+/* -------------------------------------------------------------------------- */
+/*                          VISUAL BACKGROUND ENGINE                          */
+/* -------------------------------------------------------------------------- */
+
 /* ── Sparse Star-Field Canvas (organic, not networked) ── */
 /* ── Futuristic Glitch Canvas ── */
 const GlitchBackground = () => {
   const canvasRef = useRef(null);
   const animRef = useRef(null);
   const isVisible = useRef(true);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible.current = entry.isIntersecting;
+    });
+    if (canvasRef.current) observer.observe(canvasRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -27,6 +40,7 @@ const GlitchBackground = () => {
         animRef.current = requestAnimationFrame(animate);
         return;
       }
+      
       const intensity = 0.6; // Constant mild glitch
 
       // Trail/Fade dark background
@@ -65,22 +79,15 @@ const GlitchBackground = () => {
     animate();
 
     return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
+      cancelAnimationFrame(animRef.current);
     };
   }, []);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      isVisible.current = entry.isIntersecting;
-    });
-    if (canvasRef.current) observer.observe(canvasRef.current);
-
     const cleanup = draw();
-    
-    return () => {
-      observer.disconnect();
-      cleanup();
-    };
+    const onResize = () => { cancelAnimationFrame(animRef.current); draw(); };
+    window.addEventListener('resize', onResize);
+    return () => { cleanup?.(); window.removeEventListener('resize', onResize); };
   }, [draw]);
 
   return <canvas ref={canvasRef} className="glitch-bg" style={{position:'absolute', inset:0, zIndex:0}}/>;

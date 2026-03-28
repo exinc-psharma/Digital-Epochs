@@ -3,8 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line 
 import gsap from 'gsap';
 import {
   Smartphone, Share2, MessageCircle, Heart,
-  Bell, Camera, Play, Users, X
+  Bell, Camera, Play, Users, Search, Send
 } from 'lucide-react';
+
+
+/* -------------------------------------------------------------------------- */
+/*                        SOCIAL FEED & DEVICE MOCKUP                         */
+/* -------------------------------------------------------------------------- */
 
 const APPS = [
   { id: 1, name: 'Social Feed', subtitle: '2.1B users', color: '#1877f2', icon: <Share2 size={22} />, badge: 12 },
