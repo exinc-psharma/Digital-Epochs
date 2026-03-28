@@ -39,7 +39,8 @@ The narrative transitions into the conceptualization of packet switching.
 ### 3. The World Wide Web (1990s Dot-Com Boom)
 A stark, glaring shift from black shells to early consumer internet aesthetics.
 - **Expandable OS Window Cards:** Simulated OS windows rendering historically significant properties (Netscape, Amazon, eBay, GeoCities). Hovering interacting with them yields drop-shadow expansions. Clicking the "OPEN" button triggers a fluid GSAP expansion that reveals the site's full tagline and mocked live visitor counters wrapped in digital neon.
-- **Functional Retro Browser Modal:** Clicking the "OPEN IN BROWSER" action on an expanded card generates a fully-rendered secondary Windows 95 style web-browser overlay. This modal renders the classic toolbar. Pressing the "GO" button natively redirects the user to the actual historical Wikipedia archives of that respective website.
+- **Functional Retro Browser Modal:** Clicking the "OPEN IN BROWSER" action on an expanded card generates a fully-rendered secondary Windows 95 style web-browser overlay. This modal renders the classic toolbar. Pressing the "GO" button natively redirects the user to the respective historical website. 
+  *(Note: Due to the historical nature of this section, several original domains like Netscape and GeoCities have officially shut down since their publication and will not load live content, whereas modern domains like Google and Amazon will redirect to their currently active URLs.)*
 - **Atmospheric Animations:** Employs constant background infinite marquees, "Under Construction" blinking tags, and mocked visitor counters enforcing a visceral 1990s web aesthetic.
 
 ### 4. The Social & Mobile Era (2000s - 2010s)
