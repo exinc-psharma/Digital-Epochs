@@ -7,26 +7,15 @@ import { Cpu, Globe, Zap, Shield, Hexagon, Sparkles } from 'lucide-react';
 const NeonField = () => {
   const canvasRef = useRef(null);
   const animRef = useRef(null);
-  const isVisible = useRef(true);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      isVisible.current = entry.isIntersecting;
-    });
-    if (canvasRef.current) observer.observe(canvasRef.current);
-    return () => observer.disconnect();
-  }, []);
+  const cleanupRef = useRef(null);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const W = canvas.offsetWidth;
-    const H = canvas.offsetHeight;
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    ctx.scale(dpr, dpr);
+    let W = (canvas.width = window.innerWidth);
+    let H = (canvas.height = window.innerHeight);
+
     const isMobile = W < 768;
     const isTablet = W >= 768 && W <= 1024;
     const count = isMobile ? 35 : isTablet ? 50 : 80;
@@ -41,10 +30,6 @@ const NeonField = () => {
     }));
 
     const animate = () => {
-      if (!isVisible.current) {
-        animRef.current = requestAnimationFrame(animate);
-        return;
-      }
       ctx.clearRect(0, 0, W, H);
       particles.forEach((p) => {
         p.x += p.dx;
@@ -88,12 +73,28 @@ const NeonField = () => {
       animRef.current = requestAnimationFrame(animate);
     };
     animate();
-    return () => cancelAnimationFrame(animRef.current);
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
   }, []);
 
   useEffect(() => {
-    const cleanup = draw();
-    return () => cleanup?.();
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        if (!cleanupRef.current) cleanupRef.current = draw();
+      } else {
+        if (cleanupRef.current) {
+          cleanupRef.current();
+          cleanupRef.current = null;
+        }
+      }
+    });
+    if (canvasRef.current) observer.observe(canvasRef.current);
+
+    return () => {
+      observer.disconnect();
+      if (cleanupRef.current) cleanupRef.current();
+    };
   }, [draw]);
 
   return (

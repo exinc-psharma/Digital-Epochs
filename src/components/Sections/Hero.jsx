@@ -11,15 +11,7 @@ gsap.registerPlugin(TextPlugin, ScrollTrigger);
 const GlitchBackground = () => {
   const canvasRef = useRef(null);
   const animRef = useRef(null);
-  const isVisible = useRef(true);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      isVisible.current = entry.isIntersecting;
-    });
-    if (canvasRef.current) observer.observe(canvasRef.current);
-    return () => observer.disconnect();
-  }, []);
+  const cleanupRef = useRef(null);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -31,11 +23,6 @@ const GlitchBackground = () => {
     const colors = ['#00ffff', '#ff003c', '#00ff41', '#ffffff', '#111111'];
 
     const animate = () => {
-      if (!isVisible.current) {
-        animRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      
       const intensity = 0.6; // Constant mild glitch
 
       // Trail/Fade dark background
@@ -74,15 +61,27 @@ const GlitchBackground = () => {
     animate();
 
     return () => {
-      cancelAnimationFrame(animRef.current);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
     };
   }, []);
 
   useEffect(() => {
-    const cleanup = draw();
-    const onResize = () => { cancelAnimationFrame(animRef.current); draw(); };
-    window.addEventListener('resize', onResize);
-    return () => { cleanup?.(); window.removeEventListener('resize', onResize); };
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        if (!cleanupRef.current) cleanupRef.current = draw();
+      } else {
+        if (cleanupRef.current) {
+          cleanupRef.current();
+          cleanupRef.current = null;
+        }
+      }
+    });
+    if (canvasRef.current) observer.observe(canvasRef.current);
+    
+    return () => {
+      observer.disconnect();
+      if (cleanupRef.current) cleanupRef.current();
+    };
   }, [draw]);
 
   return <canvas ref={canvasRef} className="glitch-bg" style={{position:'absolute', inset:0, zIndex:0}}/>;
